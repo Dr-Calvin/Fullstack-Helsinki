@@ -1,22 +1,27 @@
 import React from "react";
 
 const Header = (props) => {
-  return(
-    <h1>{props.course}</h1>
-  )
-}
+  return <h1>{props.course}</h1>;
+};
+const Part = (props) => {
+  return (
+    <p>
+      {props.part} {props.ex}
+    </p>
+  );
+};
 const Content = (props) => {
-  return(
-
-    <p>{props.part} {props.ex}</p>
-    )
-}
+  return (
+    <div>
+      <Part part={props.p1} ex={props.e1} />
+      <Part part={props.p2} ex={props.e2} />
+      <Part part={props.p3} ex={props.e3} />
+    </div>
+  );
+};
 const Total = (props) => {
-  return(
-    <p>Number of exercises {props.sum}</p>
-  )
-}
-
+  return <p>Number of exercises {props.sum}</p>;
+};
 
 const App = () => {
   const course = "Half Stack application development";
@@ -30,10 +35,15 @@ const App = () => {
   return (
     <div>
       <Header course={course} />
-      <Content part={part1} ex={exercises1} />
-      <Content part={part2} ex={exercises2} />
-      <Content part={part3} ex={exercises3} />
-      <Total sum={exercises1+exercises2+exercises3} />
+      <Content
+        p1={part1}
+        e1={exercises1}
+        p2={part2}
+        e2={exercises2}
+        p3={part3}
+        e3={exercises3}
+      />
+      <Total sum={exercises1 + exercises2 + exercises3} />
     </div>
   );
 };
