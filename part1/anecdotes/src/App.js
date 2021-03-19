@@ -14,11 +14,6 @@ const Message = ({ text }) => {
 };
 
 const App = () => {
-  const shuffleMessage = () => {
-    let ranNum = Math.floor(Math.random() * anecdotes.length);
-    if (ranNum !== anNum) setAnNum(ranNum);
-    else setAnNum(anNum + 1);
-  };
   const anecdotes = [
     "If it hurts, do it more often",
     "Adding manpower to a late software project makes it later!",
@@ -28,10 +23,24 @@ const App = () => {
     "Debugging is twice as hard as writing the code in the first place. Therefore, if you write the code as cleverly as possible, you are, by definition, not smart enough to debug it.",
   ];
   const [anNum, setAnNum] = useState(0);
-
+  const shuffleMessage = () => {
+    let ranNum = Math.floor(Math.random() * anecdotes.length);
+    if (ranNum !== anNum) setAnNum(ranNum);
+    else setAnNum(anNum + 1);
+  };
+  const initialScore = new Array(anecdotes.length).fill(0)
+  const [points, updatePoints] = useState(initialScore)
+  const addPoint = () => {
+    let copy = [...points]
+    copy[anNum] +=1
+    updatePoints(copy)
+  }
+  // console.log(points)
   return (
     <div className="App">
       <Message text={anecdotes[anNum]} />
+      <Message text={"has " + points[anNum] + " points"} />
+      <Button handleClick={addPoint} text="Vote" />
       <Button handleClick={shuffleMessage} text="Next Anecdote" />
     </div>
   );
