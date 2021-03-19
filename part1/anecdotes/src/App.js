@@ -28,13 +28,13 @@ const App = () => {
     if (ranNum !== anNum) setAnNum(ranNum);
     else setAnNum(anNum + 1);
   };
-  const initialScore = new Array(anecdotes.length).fill(0)
-  const [points, updatePoints] = useState(initialScore)
+  const initialScore = new Array(anecdotes.length).fill(0);
+  const [points, updatePoints] = useState(initialScore);
   const addPoint = () => {
-    let copy = [...points]
-    copy[anNum] +=1
-    updatePoints(copy)
-  }
+    let copy = [...points];
+    copy[anNum] += 1;
+    updatePoints(copy);
+  };
   // console.log(points)
   return (
     <div className="App">
