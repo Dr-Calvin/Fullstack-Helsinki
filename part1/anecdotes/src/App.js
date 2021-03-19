@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-
 const Button = ({ handleClick, text }) => (
   <button onClick={handleClick}>{text}</button>
 );
@@ -8,7 +7,17 @@ const Message = ({ text }) => {
   return (
     <div>
       <p className="anecdote">{text}</p>
-      <style>{`.anecdote{height: 60px}`}</style>
+      <style>{`.anecdote{height: 30px}`}</style>
+    </div>
+  );
+};
+
+const Popular = ({ sourceMaterial, stats }) => {
+  const mostPopular = Math.max(...stats);
+  return (
+    <div>
+      <Message text={sourceMaterial[stats.indexOf(mostPopular)]} />
+      <Message text={"has " + stats[stats.indexOf(mostPopular)] + " points"} />
     </div>
   );
 };
@@ -35,13 +44,15 @@ const App = () => {
     copy[anNum] += 1;
     updatePoints(copy);
   };
-  // console.log(points)
   return (
     <div className="App">
+      <h1>Anecdote of the day</h1>
       <Message text={anecdotes[anNum]} />
       <Message text={"has " + points[anNum] + " points"} />
       <Button handleClick={addPoint} text="Vote" />
       <Button handleClick={shuffleMessage} text="Next Anecdote" />
+      <h1>Anecdote with the most votes</h1>
+      <Popular sourceMaterial={anecdotes} stats={points} />
     </div>
   );
 };
