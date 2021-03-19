@@ -1,13 +1,11 @@
 import React, { useState } from "react";
-const Button = ({ handleClick, text }) => (
-  <button onClick={handleClick}>{text}</button>
-);
 
-const Message = ({ text }) => {
+const Anecdote = ({ anecdote, votes }) => {
   return (
     <div>
-      <p className="anecdote">{text}</p>
-      <style>{`.anecdote{height: 30px}`}</style>
+      <p className="anecdote">{anecdote}</p>
+      <style>{`.anecdote{min-height: 30px}`}</style>
+      <p>has {votes} votes</p>
     </div>
   );
 };
@@ -16,8 +14,10 @@ const Popular = ({ sourceMaterial, stats }) => {
   const mostPopular = Math.max(...stats);
   return (
     <div>
-      <Message text={sourceMaterial[stats.indexOf(mostPopular)]} />
-      <Message text={"has " + stats[stats.indexOf(mostPopular)] + " points"} />
+      <Anecdote
+        anecdote={sourceMaterial[stats.indexOf(mostPopular)]}
+        votes={mostPopular}
+      />
     </div>
   );
 };
@@ -33,9 +33,10 @@ const App = () => {
   ];
   const [anNum, setAnNum] = useState(0);
   const shuffleMessage = () => {
-    let ranNum = Math.floor(Math.random() * anecdotes.length);
-    if (ranNum !== anNum) setAnNum(ranNum);
-    else setAnNum(anNum + 1);
+    let ranNum = anNum;
+    while (ranNum === anNum)
+      ranNum = Math.floor(Math.random() * anecdotes.length);
+    setAnNum(ranNum);
   };
   const initialScore = new Array(anecdotes.length).fill(0);
   const [points, updatePoints] = useState(initialScore);
@@ -44,13 +45,13 @@ const App = () => {
     copy[anNum] += 1;
     updatePoints(copy);
   };
+
   return (
     <div className="App">
       <h1>Anecdote of the day</h1>
-      <Message text={anecdotes[anNum]} />
-      <Message text={"has " + points[anNum] + " points"} />
-      <Button handleClick={addPoint} text="Vote" />
-      <Button handleClick={shuffleMessage} text="Next Anecdote" />
+      <Anecdote anecdote={anecdotes[anNum]} votes={points[anNum]} />
+      <button onClick={addPoint}>Vote</button>
+      <button onClick={shuffleMessage} >Next Anecdote</button>
       <h1>Anecdote with the most votes</h1>
       <Popular sourceMaterial={anecdotes} stats={points} />
     </div>
