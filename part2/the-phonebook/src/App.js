@@ -1,41 +1,93 @@
 import React, { useState, useEffect } from "react";
 import Persons from "./Persons";
 import PersonForm from "./PersonForm";
+import phoneService from "./services/phoneService";
 import Filter from "./Filter";
-import axios from "axios";
+import "./index.css";
 
 const App = () => {
   const [persons, setPersons] = useState([]);
+  const [newName, setNewName] = useState("");
+  const [newNumber, setNewNumber] = useState("");
+  const [newNameFilter, setNewNameFilter] = useState("");
+  const [display, setDisplay] = useState([]);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [errorDelete, setErrorDelete] = useState("");
 
   useEffect(() => {
-    console.log("effect");
-    axios.get("http://localhost:3001/phonebook").then((response) => {
-      console.log("promise fulfilled");
-      setPersons(response.data);
-      setDisplay(response.data);
+    phoneService.getAll().then((response) => {
+      setPersons(response);
+      setDisplay(response);
     });
   }, []);
 
-  const [newName, setNewName] = useState("");
-  const [newNameFilter, setNewNameFilter] = useState("");
-  const [newNumber, setNewNumber] = useState("");
-  const [display, setDisplay] = useState([]);
+  const Notification = ({ message }) => {
+    if (message === null) return null;
+    return <div className="error">{message}</div>;
+  };
+
+  const resetFields = (personsC) => {
+    setNewName("");
+    setNewNumber("");
+    setNewNameFilter("");
+    setDisplay([...personsC]);
+  };
+
+  const deleteEntry = (name, id) => {
+    if (window.confirm(`Do you really want to Delete ${name}?`))
+      phoneService
+        .deleteField(id)
+        .catch((error) => {
+          setErrorDelete(
+            `the person you're trying to delete has already been deleted from the server`
+          );
+          setTimeout(() => {
+            setErrorDelete(null);
+          }, 5000);
+        })
+        .then(() => {
+          let currentIDList = persons.map((person) => person.id);
+          const deleteeIndex = currentIDList.indexOf(id);
+          const personsCopy = persons;
+          personsCopy.splice(deleteeIndex, 1);
+          setPersons(personsCopy);
+          resetFields(personsCopy);
+        });
+  };
+
+  const ErrDelete = ({ message }) => {
+    return <div className="errDel">{message}</div>;
+  };
 
   const addPerson = (event) => {
     event.preventDefault();
     const personObject = {
       name: newName,
       number: newNumber,
-      id: persons[persons.length - 1].id + 1,
     };
-    let existsCheck = persons.filter((n) => n.name === personObject.name);
-    if (existsCheck.length === 0) {
-      setPersons(persons.concat(personObject));
-      setNewName("");
-      setNewNumber("");
-      setNewNameFilter("");
-      setDisplay(persons.concat(personObject));
-    } else alert(`${personObject.name} is already in the phonebook`);
+    let currentNameList = persons.map((person) => person.name);
+    if (!currentNameList.includes(personObject.name)) {
+      phoneService.create(personObject).then((response) => {
+        setErrorMessage(`${response.name} was added to phonebook`);
+        setTimeout(() => {
+          setErrorMessage(null);
+        }, 5000);
+        setPersons(persons.concat(response));
+        resetFields(persons.concat(response));
+      });
+    } else {
+      alert(
+        `${personObject.name} is already in the phonebook, updating phone number...`
+      );
+      const updateeIndex = currentNameList.indexOf(personObject.name);
+      const updatee = persons[updateeIndex];
+      phoneService.update(updatee.id, personObject).then((returnedEntry) => {
+        const personsCopy = persons;
+        personsCopy[updateeIndex] = returnedEntry;
+        setPersons(personsCopy);
+        resetFields(personsCopy);
+      });
+    }
   };
 
   const handleNameChange = (event) => setNewName(event.target.value);
@@ -57,6 +109,8 @@ const App = () => {
         handleNameFilterChange={handleNameFilterChange}
       />
       <h2>Add a new</h2>
+      <Notification message={errorMessage} />
+      <ErrDelete message={errorDelete} />
       <PersonForm
         addPerson={addPerson}
         newName={newName}
@@ -65,7 +119,7 @@ const App = () => {
         handleNumberChange={handleNumberChange}
       />
       <h2>Numbers</h2>
-      <Persons persons={display} />
+      <Persons persons={display} deleteEntry={deleteEntry} />
     </div>
   );
 };
